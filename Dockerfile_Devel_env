@@ -1,0 +1,22 @@
+FROM ubuntu:latest
+
+WORKDIR /workspace
+
+COPY . /workspace
+
+RUN apt-get update
+
+RUN apt-get install -y openssh-server curl
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+RUN mkdir -p /run/sshd
+
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+RUN echo 'root:1234' | chpasswd
+
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]
